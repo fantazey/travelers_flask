@@ -6,7 +6,7 @@ app = Flask(__name__)
 api = Api(app)
 place_parser = reqparse.RequestParser()
 place_parser.add_argument('name', required=True)
-place_parser.add_argument('details', required=False)
+place_parser.add_argument('type', required=True)
 place_parser.add_argument('longitude', type=float, required=True)
 place_parser.add_argument('latitude', type=float, required=True)
 
@@ -19,6 +19,11 @@ def index():
 @app.route('/favicon.ico')
 def favicon():
     return app.send_static_file('/favicon.ico')
+
+
+@app.route('/img/<path:path>')
+def img(path):
+    return app.send_static_file('img/' + path)
 
 
 @app.route('/js/<path:path>')
@@ -52,4 +57,4 @@ api.add_resource(PlaceList, '/api/places')
 api.add_resource(Place, '/api/places/<place_id>')
 
 if __name__ == '__main__':
-    app.run()
+    app.run(host='0.0.0.0', port=8084)

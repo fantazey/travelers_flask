@@ -6,14 +6,18 @@ DB = os.path.join(PATH, 'db.sqlite')
 
 
 def init_db():
+    if not os.path.exists(DB):
+        handler = open(DB, 'w')
+        handler.close()
     connection = sqlite3.connect(DB)
-    connection.execute("""
+    cursor = connection.cursor()
+    cursor.execute("""
     CREATE TABLE IF NOT EXISTS place(
         id INTEGER NOT NULL PRIMARY KEY,
-        name TEXT,
-        details TEXT,
-        longitude REAL,
-        latitude REAL
+        name TEXT NOT NULL,
+        place_type TEXT NOT NULL,
+        longitude REAL NOT NULL,
+        latitude REAL NOT NULL     
     )
     """)
     connection.commit()
@@ -27,20 +31,24 @@ def connect():
 
 def add_place(place):
     connection = connect()
-    sql = "INSERT INTO place(name, details, longitude, latitude) values(?,?,?,?)"
+    sql = "INSERT INTO place(name, place_type, longitude, latitude) values(?,?,?,?)"
     cursor = connection.cursor()
-    cursor.execute(sql, [place.name, place.details or '', place.longitude, place.latitude])
+    cursor.execute(sql, [place.name, place.type, place.longitude, place.latitude])
     new_id = cursor.lastrowid
     connection.commit()
     connection.close()
     return new_id
 
 
-def get_place_list():
+def get_place_list(place_type = None):
     connection = connect()
     sql = "SELECT * FROM place"
+    params = []
+    if place_type is not None:
+        sql = "SELECT * FROM place WHERE type = ?"
+        params = [place_type]
     cursor = connection.cursor()
-    cursor.execute(sql)
+    cursor.execute(sql, params)
     place_records = cursor.fetchall()
     places = list(map(lambda x: format_place(cursor, x), place_records))
     connection.close()

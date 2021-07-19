@@ -3,3 +3,4 @@ client
 db.sqlite
 .idea
 __pycache__
+db_bootstrap.sql
